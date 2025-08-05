@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - PaiePourRien</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000; --fg: #fff; --border: #333;
+      --shadow: rgba(0,0,0,0.5);
+      --grad: linear-gradient(90deg,#25ff6a,#20c843 60%,#2f9d46);
+      --accent: #25ff6a;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); color: var(--fg);
+      font-family:'Outfit',sans-serif; margin:0; padding:0;
+      min-height: 100vh; min-width:100vw; overflow-x:hidden;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100vw; max-width: 1200px; margin: 0 auto 1vh auto;
+      padding: 1.2rem 2rem 0.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    .logo-title { display:flex; align-items:center; gap:16px;}
+    .logo-title img { width:52px; filter:drop-shadow(2px 2px 4px var(--shadow)); }
+    .logo-title span { font-size:2rem; font-weight:700; letter-spacing:2px; }
+    .settings { font-size:2rem; cursor:pointer;}
+    .dashboard-grid {
+      width:100vw; max-width:1200px; margin:0 auto; min-height:86vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+      padding: 3vh 2vw 3vh 2vw;
+      box-sizing: border-box;
+      align-items: start;
+    }
+    .greeting-badge, .badge-progress-block, .don-block, .pokedex-block, .classement-block, .pigeonnier-block {
+      background: rgba(25,25,25,0.99);
+      border-radius:1.3em;
+      box-shadow: 0 2px 14px var(--shadow);
+      padding:1.4em 1em 1.2em 1em;
+      margin-bottom: 0.6rem;
+      width:100%;
+      box-sizing: border-box;
+      text-align:center;
+    }
+    .greeting-badge {
+      display: flex; align-items:center; justify-content:center; gap:14px;
+      font-size:1.22rem; font-weight:700; margin-bottom:1.2rem;
+      background:none; box-shadow:none; padding:0;
+    }
+    .greeting-badge img { width:38px; border-radius:50%; box-shadow:0 2px 8px var(--shadow);}
+    .title-main { text-align:center; font-size:3.3rem; font-weight:900; letter-spacing:5px; margin:0.6em 0 0.7em 0;}
+    .badge-progress-block img { width:62px; margin-bottom: 0.25rem;}
+    .badge-prog-text { font-size:1.09rem; margin-bottom: 0.9rem;}
+    .progress-bar {
+      width: 100%; max-width: 230px; height: 14px; background: #222;
+      border-radius: 10px; margin: 0.2rem auto 0.7rem auto; overflow: hidden;
+      box-shadow:0 1px 8px var(--shadow);
+    }
+    .progress { height:100%; background: var(--grad); width:0%; transition:width 0.5s;}
+    .don-block label {font-size:1.15rem;}
+    .don-block input[type=number] {
+      font-size:1.08rem; padding:0.55em 1.05em; border-radius:7px; border:none;
+      background:#181818; color:#fff; width:170px; text-align:center; margin:0.5em 0;
+    }
+    .don-block button {
+      background:var(--accent); color:#222; font-weight:700; font-size:1.03rem;
+      border:none; border-radius:9px; padding:0.7em 1.6em; box-shadow:0 1px 7px var(--shadow); cursor:pointer;
+      margin-top:0.2em; transition: transform 0.14s;
+    }
+    .don-block button:hover { transform:scale(1.06);}
+    .pokedex-block label {font-size:1.07rem; margin-bottom:0.3em;}
+    .pokedex-block button {
+      background:#fff; color:#000; font-size:1.03rem; font-weight:700; border-radius:7px;
+      padding:0.7em 1.3em; border:none; box-shadow:0 1px 7px var(--shadow); cursor:pointer;
+      margin-top:0.3em; transition:transform 0.09s;
+    }
+    .pokedex-block button:hover { background:var(--accent); color:#222;}
+    .classement-block h3 {text-align:center; margin-bottom:0.5em;}
+    .classement-list {list-style:none; padding:0; margin:0 0 0.6em 0; font-size:1.01rem;}
+    .classement-list li {padding:0.27em 0; border-bottom:1px solid #222;}
+    .user-rank {text-align:center; font-weight:700;}
+    .pigeonnier-block button {
+      background:var(--accent); color:#222; font-weight:700; font-size:1.01rem;
+      border:none; border-radius:9px; padding:0.7em 1.6em; margin-top:0.5em; box-shadow:0 1px 7px var(--shadow); cursor:pointer;
+    }
+    .zone-col1 { display: flex; flex-direction:column; gap:1.1rem; }
+    .zone-col2 { display: flex; flex-direction:column; gap:1.1rem;}
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        max-width: 99vw; padding:2vh 2vw 2vh 2vw;
+      }
+      .zone-col1, .zone-col2 {gap:1.1rem;}
+    }
+    @media (max-width:600px) {
+      header, .dashboard-grid {max-width:99vw;}
+      .badge-progress-block, .classement-block {max-width:99vw;}
+      .title-main {font-size:2.1rem;}
+      .greeting-badge span {font-size:1.03rem;}
+      .don-block input[type=number] {width: 96vw; min-width: 120px;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-title">
+      <img src="assets/pigeon.png" alt="Logo Pigeon">
+      <span>PaiePourRien</span>
+    </div>
+    <div class="settings" onclick="openSettings()">⚙️</div>
+  </header>
+  <div class="dashboard-grid">
+    <!-- Colonne 1 -->
+    <div class="zone-col1">
+      <div class="greeting-badge">
+        <span id="greeting">Bonjour, [Pseudo]</span>
+        <img id="userBadgeIcon" src="assets/badges/oeuf_pigeon.png" alt="Badge actuel">
+      </div>
+      <div class="title-main">RIEN</div>
+      <div class="badge-progress-block">
+        <img id="badgeBig" src="assets/badges/oeuf_pigeon.png" alt="Badge actuel">
+        <div class="badge-prog-text" id="badgeTexte">
+          Vous êtes <strong>[Nom du badge]</strong> – il vous manque <strong>[X€]</strong> pour atteindre <strong>[NOM PROCHAIN BADGE]</strong>.
+        </div>
+        <div class="progress-bar">
+          <div class="progress" id="progress"></div>
+        </div>
+      </div>
+      <div class="pokedex-block">
+        <label>Tu veux plus que rien ?</label>
+        <button onclick="window.location.href='pokedex.html'">Explorer le Pokédex à Pigeons</button>
+      </div>
+    </div>
+    <!-- Colonne 2 -->
+    <div class="zone-col2">
+      <div class="don-block">
+        <label for="donMontant">Faire le plus beau des dons</label>
+        <input type="number" id="donMontant" min="1" placeholder="Montant en €">
+        <button onclick="faireUnDon()">Lâcher mon argent</button>
+        <div id="donMessage" style="color:#25ff6a;min-height:1.2em;"></div>
+      </div>
+      <div class="classement-block">
+        <h3>Top 10 des plus gros pigeons</h3>
+        <ul class="classement-list" id="classementTop10"></ul>
+        <div class="user-rank" id="rangUtilisateur"></div>
+      </div>
+      <div class="pigeonnier-block">
+        <button onclick="window.location.href='https://discord.gg/ton-lien'">Rejoindre le Pigeonnier</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // À brancher à Google Sheets et Stripe en prod (ici exemple de code)
+    // Les badges, le classement, etc. doivent être fetch dynamiquement
+    const totalCumule = 420; // À remplacer par le total depuis Google Sheets de l'utilisateur connecté
+    const pseudo = 'JeanMi'; // À remplacer par le pseudo Google Sheets
+
+    document.getElementById('greeting').innerText = `Bonjour, ${pseudo}`;
+
+    const badges = [
+      { seuil:3, nom:"L'Œuf de Pigeon", img:"oeuf_pigeon.png" },
+      { seuil:50, nom:"Le Pigeon Parisien", img:"pigeon_parisien.png" },
+      { seuil:150, nom:"Le Pigeon Ébourriffé", img:"pigeon_ebourriffe.png" },
+      { seuil:300, nom:"Le Pigeon Star", img:"pigeon_star.png" },
+      { seuil:500, nom:"Le Pigeon Illuminé", img:"pigeon_illumine.png" },
+      { seuil:1000, nom:"Le Super Saiyan des Pigeons", img:"super_saiyan_pigeon.png" },
+      { seuil:2500, nom:"Le Pigeon Trop Généreux", img:"pigeon_trop_genereux.png" },
+      { seuil:5000, nom:"Le Pigeon Royal", img:"pigeon_royal.png" },
+      { seuil:10000, nom:"Le Pigeon Déplumé", img:"pigeon_deplume.png" }
+    ];
+
+    function actualiserDashboard(total) {
+      let actuel = badges[0], suivant = badges[1];
+      for (let i=0; i<badges.length; i++) {
+        if (total >= badges[i].seuil) { actuel = badges[i]; suivant = badges[i+1] || badges[i]; }
+        else break;
+      }
+      const restant = Math.max(0, suivant.seuil - total);
+      document.getElementById('userBadgeIcon').src = `assets/badges/${actuel.img}`;
+      document.getElementById('badgeBig').src = `assets/badges/${actuel.img}`;
+      document.getElementById('badgeTexte').innerHTML =
+        `Vous êtes <strong>${actuel.nom}</strong> – il vous manque <strong>${restant}€</strong> pour atteindre <strong>${suivant.nom}</strong>.`;
+      document.getElementById('progress').style.width = `${Math.min(100, total/suivant.seuil*100)}%`;
+    }
+
+    function faireUnDon() {
+      const m = parseInt(document.getElementById('donMontant').value);
+      if (!m || m < 1) { document.getElementById('donMessage').innerText = 'Merci d’entrer un montant valide.'; return; }
+      document.getElementById('donMessage').innerText = `Tu viens de donner ${m}€ pour rien ! Merci, pigeon.`;
+      // Intégration Stripe + mise à jour Google Sheets à faire ici
+    }
+
+    // Classement à brancher à Google Sheets
+    // Simuler avec des exemples ou brancher ton fetch CSV ici
+    const fakeClassement = [
+      { pseudo: 'JeanMi', total: 420 },
+      { pseudo: 'Paul', total: 370 },
+      { pseudo: 'Carla', total: 260 },
+      { pseudo: 'Bastien', total: 180 },
+      { pseudo: 'Soso', total: 150 },
+      { pseudo: 'Marie', total: 120 },
+      { pseudo: 'Ludo', total: 90 },
+      { pseudo: 'Zozo', total: 72 },
+      { pseudo: 'Vero', total: 53 },
+      { pseudo: 'Patrick', total: 48 }
+    ];
+    function afficherClassement() {
+      const ul = document.getElementById('classementTop10');
+      ul.innerHTML = '';
+      fakeClassement.forEach((u, i) => {
+        ul.innerHTML += `<li>${i+1}. ${u.pseudo} – ${u.total}€</li>`;
+      });
+      // Rang utilisateur
+      const index = fakeClassement.findIndex(u => u.pseudo === pseudo);
+      document.getElementById('rangUtilisateur').innerText =
+        index !== -1 ? `Tu es actuellement le pigeon n°${index+1} / ${fakeClassement.length}` : '';
+    }
+
+    actualiserDashboard(totalCumule);
+    afficherClassement();
+  </script>
+</body>
+</html>
+

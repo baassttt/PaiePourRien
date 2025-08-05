@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pokédex à Pigeons</title>
+  <style>
+    :root {
+      --bg1:#1f1f2a;
+      --bg2:#2e2e44;
+      --radius:14px;
+      --blur-locked:4px;
+      --locked-opacity:.35;
+    }
+    *{box-sizing:border-box;}
+    body {
+      margin:0;
+      font-family: "Outfit", system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+      background: linear-gradient(160deg,var(--bg1) 0%, var(--bg2) 100%);
+      color:#eee;
+      min-height:100vh;
+    }
+    header {
+      display:flex;
+      align-items:center;
+      gap:1rem;
+      padding:10px 16px 4px;
+      position:sticky;
+      top:0;
+      background:rgba(31,31,42,0.95);
+      z-index:50;
+    }
+    .back-btn {
+      background:none;
+      border:none;
+      font-size:1.6rem;
+      cursor:pointer;
+      color:#eee;
+      padding:4px;
+    }
+    .title-wrapper {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+    }
+    h1 { margin:0; font-size:1.75rem; letter-spacing:1px; }
+    .progress {
+      margin-top:4px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:0.8rem;
+    }
+    .progress-bar {
+      flex:1;
+      background:#2d2d55;
+      border-radius:999px;
+      position:relative;
+      overflow:hidden;
+      height:10px;
+    }
+    .progress-fill {
+      height:100%;
+      width:0%;
+      background: linear-gradient(135deg,#7effa3,#53d6ff);
+      border-radius:999px;
+      transition: width .6s ease;
+    }
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(170px,1fr));
+      gap:18px;
+      padding:16px;
+    }
+    .badge-card {
+      position:relative;
+      background:rgba(255,255,255,0.05);
+      border-radius: var(--radius);
+      padding:12px 12px 14px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+      transition: transform .3s ease, box-shadow .3s ease;
+      box-shadow:0 20px 60px -10px rgba(0,0,0,.5);
+    }
+    .badge-card.unlocked { background:rgba(255,255,255,0.07); }
+    .badge-card:hover { transform: translateY(-3px); }
+    .badge-image-wrapper {
+      position:relative;
+      width:100%;
+      aspect-ratio:1/1;
+      border-radius:10px;
+      overflow:hidden;
+    }
+    .badge-image-wrapper img {
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      transition: filter .3s ease, transform .3s ease;
+      border-radius:8px;
+    }
+    .badge-card.locked img {
+      filter: grayscale(100%) blur(var(--blur-locked));
+      opacity: var(--locked-opacity);
+    }
+    .lock-overlay {
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      font-size:1.9rem;
+      color:rgba(255,255,255,0.9);
+      pointer-events:none;
+    }
+    .badge-title { font-weight:600; font-size:1rem; margin:0; text-align:center; }
+    .badge-quest { margin:2px 0 0; font-size:.65rem; line-height:1.1; opacity:.9; text-align:center; }
+
+    #zoom-overlay {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.85);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:30px;
+      z-index:999;
+      backdrop-filter:blur(12px);
+      visibility:hidden;
+      opacity:0;
+      transition:opacity .25s ease, visibility .25s;
+    }
+    #zoom-overlay.active {
+      visibility:visible;
+      opacity:1;
+    }
+    #zoom-card {
+      position:relative;
+      max-width:600px;
+      width:90%;
+      background:rgba(255,255,255,0.04);
+      border-radius:18px;
+      padding:24px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:18px;
+      box-shadow:0 40px 100px -10px rgba(0,0,0,.6);
+    }
+    #zoom-img {
+      width:100%;
+      max-width:400px;
+      border-radius:16px;
+      display:block;
+    }
+    .close-zoom {
+      position:absolute;
+      top:12px;
+      right:12px;
+      background:rgba(255,255,255,0.08);
+      border:none;
+      font-size:1.3rem;
+      color:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      cursor:pointer;
+    }
+    .just-unlocked { animation: pulse .8s ease-out; }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+    .confetti-piece {
+      position:absolute;
+      width:8px;
+      height:8px;
+      background: white;
+      opacity:0;
+      pointer-events:none;
+      border-radius:3px;
+      mix-blend-mode:screen;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="title-wrapper">
+      <h1>Pokédex à Pigeons</h1>
+      <div class="progress">
+        <div class="progress-text" id="progress-label">0 / 20 pigeons</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid" id="badge-grid"></div>
+  </main>
+
+  <div id="zoom-overlay">
+    <div id="zoom-card">
+      <button class="close-zoom" onclick="toggleZoom()" class="close-zoom">✕</button>
+      <img id="zoom-img" src="" alt="Badge agrandi" />
+      <div id="zoom-title" style="font-weight:700; font-size:1.3rem; text-align:center;"></div>
+      <div id="zoom-quest" style="font-size:.85rem; opacity:.9; text-align:center; max-width:500px;"></div>
+    </div>
+  </div>
+
+  <template id="badge-template">
+    <div class="badge-card locked">
+      <div class="badge-image-wrapper">
+        <img src="" alt="">
+        <div class="lock-overlay">🔒</div>
+      </div>
+      <div class="badge-title"></div>
+      <div class="badge-quest"></div>
+    </div>
+  </template>
+
+  <script>
+    // config
+    const BADGES = [
+      { key: 'pigeonneau', name: 'Pigeonneau', quest: 'Faire son premier don' },
+      { key: 'pigeon_radin', name: 'Pigeon radin', quest: 'Faire un don de 1€' },
+      { key: 'pigeon_obese', name: 'Pigeon obèse', quest: '10 dons de 2€ en 1 journée' },
+      { key: 'pigeon_sportif', name: 'Pigeon sportif', quest: 'Faire un don de 10€ chaque jour pendant 7 jours' },
+      { key: 'pigeon_insomniaque', name: 'Pigeon insomniaque', quest: 'Faire un don entre 2h et 4h du matin' },
+      { key: 'pigeon_demoniaque', name: 'Pigeon démoniaque', quest: 'Faire un don de 666€' },
+      { key: 'pigeon_de_chasse', name: 'Pigeon de chasse', quest: 'Faire 3 dons de 200€ en 1h' },
+      { key: 'pigeon_romantique', name: 'Pigeon romantique', quest: 'Faire un don le 14 février' },
+      { key: 'pigeon_voyageur', name: 'Pigeon voyageur', quest: 'Faire un don depuis 3 pays différents' },
+      { key: 'pigeon_discret', name: 'Pigeon discret', quest: 'Don EXACT de 121€ après énigmes' },
+      { key: 'pigeon_invisible', name: 'Pigeon invisible', quest: 'Easter egg caché (pixel secret)' },
+      { key: 'pigeon_fetard', name: 'Pigeon fêtard', quest: 'Don le 31 décembre ou 1er janvier' },
+      { key: 'pigeon_snob', name: 'Pigeon snob', quest: 'Faire un don de 1234€' },
+      { key: 'pigeon_glace', name: 'Pigeon glacé', quest: 'Don le 21 décembre' },
+      { key: 'pigeon_fanatique', name: 'Pigeon fanatique', quest: 'Don chaque lundi pendant 2 mois' },
+      { key: 'pigeon_toxique', name: 'Pigeon toxique', quest: '5 dons de 3€ espacés de 3 minutes' },
+      { key: 'pigeon_timide', name: 'Pigeon timide', quest: '1€,2€,3€,4€,5€ consécutifs' },
+      { key: 'pigeon_de_luxe', name: 'Pigeon de luxe', quest: '2 dons de 500€ en <10 min' },
+      { key: 'pigeon_perver', name: 'Pigeon perver', quest: 'Don de 69€' },
+      { key: 'pigeon_ultra_mystere', name: 'Pigeon ultra-mystère', quest: 'Don de 1999€' }
+    ];
+
+    let userEmail = localStorage.getItem('user_email') || 'test@example.com';
+    let unlockedThisSession = JSON.parse(sessionStorage.getItem('justUnlocked') || '[]');
+
+    // fallback: si rien branché, tout est locked sauf pigeonneau pour demo
+    function evaluateBadges(dons) {
+      const unlocked = {};
+      if (dons.length >= 1) unlocked['pigeonneau'] = true;
+      return unlocked;
+    }
+
+    // rendering
+    const grid = document.getElementById('badge-grid');
+
+    function buildGrid(unlockedObj) {
+      grid.innerHTML = '';
+      let count=0;
+      BADGES.forEach(b => {
+        const tpl = document.getElementById('badge-template');
+        const clone = tpl.content.firstElementChild.cloneNode(true);
+        const img = clone.querySelector('img');
+        img.src = `assets/pokedex/${b.key}.png`;
+        img.alt = b.name;
+        clone.querySelector('.badge-title').textContent = b.name;
+        clone.querySelector('.badge-quest').textContent = b.quest;
+
+        const isUnlocked = !!unlockedObj[b.key];
+        if (isUnlocked) {
+          clone.classList.remove('locked');
+          clone.classList.add('unlocked');
+          count++;
+          if (!unlockedThisSession.includes(b.key)) {
+            // célébration
+            triggerConfetti(clone);
+            clone.classList.add('just-unlocked');
+            setTimeout(()=> clone.classList.remove('just-unlocked'),800);
+            unlockedThisSession.push(b.key);
+            sessionStorage.setItem('justUnlocked', JSON.stringify(unlockedThisSession));
+          }
+        } else {
+          clone.classList.add('locked');
+        }
+
+        clone.addEventListener('click', () => {
+          if (!isUnlocked) return;
+          showZoom(b);
+        });
+
+        // invisible egg double click hack
+        if (b.key === 'pigeon_invisible' && !isUnlocked) {
+          clone.addEventListener('dblclick', () => {
+            unlockedObj['pigeon_invisible'] = true;
+            buildGrid(unlockedObj);
+          });
+        }
+
+        grid.appendChild(clone);
+      });
+      updateProgress(count);
+    }
+
+    function updateProgress(n) {
+      document.getElementById('progress-label').textContent = `${n} / ${BADGES.length} pigeons`;
+      document.getElementById('progress-fill').style.width = `${(n / BADGES.length) * 100}%`;
+    }
+
+    function showZoom(badge) {
+      const overlay = document.getElementById('zoom-overlay');
+      document.getElementById('zoom-img').src = `assets/pokedex/${badge.key}.png`;
+      document.getElementById('zoom-title').textContent = badge.name;
+      document.getElementById('zoom-quest').textContent = badge.quest;
+      overlay.classList.add('active');
+    }
+    function toggleZoom() {
+      document.getElementById('zoom-overlay').classList.remove('active');
+    }
+
+    function triggerConfetti(card) {
+      const wrapper = card;
+      for (let i=0;i<30;i++) {
+        const piece = document.createElement('div');
+        piece.className='confetti-piece';
+        wrapper.appendChild(piece);
+        const size = Math.random()*10+4;
+        piece.style.width=`${size}px`;
+        piece.style.height=`${size}px`;
+        piece.style.background = `hsl(${Math.random()*60+160},80%,${50+Math.random()*10}%)`;
+        const x0 = Math.random()*wrapper.offsetWidth;
+        const y0 = Math.random()*wrapper.offsetHeight;
+        piece.style.left = `${x0}px`;
+        piece.style.top = `${y0}px`;
+        const dx = (Math.random()-0.5)*120;
+        const dy = - (Math.random()*140 + 40);
+        piece.style.opacity=1;
+        const duration = 900 + Math.random()*300;
+        const start = performance.now();
+        function animate(time) {
+          const t = Math.min(1,(time - start)/duration);
+          piece.style.transform = `translate(${dx*t}px, ${dy*t + 20*(1-t)}px) rotate(${t*720}deg) scale(${1 - 0.4*t})`;
+          piece.style.opacity = `${1 - t}`;
+          if (t < 1) requestAnimationFrame(animate);
+          else piece.remove();
+        }
+        requestAnimationFrame(animate);
+      }
+    }
+
+    // initialization
+    function init() {
+      // ici tu remplaceras par un fetch réel vers Google Sheets / Apps Script pour obtenir les dons
+      const demoDons = [{ email: userEmail, montant: 5, date: new Date().toISOString(), pays: 'France' }]; // pour avoir Pigeonneau débloqué
+      const unlockedObj = evaluateBadges(demoDons);
+      buildGrid(unlockedObj);
+    }
+
+    init();
+  </script>
+</body>
+</html>
