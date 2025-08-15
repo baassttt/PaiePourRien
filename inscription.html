@@ -7,61 +7,21 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width:100%; height:100vh;
-      background:#000; color:#fff;
-      font-family:'Outfit',sans-serif;
-      overflow-x:hidden;
-    }
-    @media (min-width:1024px) {
-      html, body { overflow-y:hidden; }
-    }
-    body {
-      display:flex; flex-direction:column;
-      align-items:center; padding:0.5rem 0;
-      position: relative;
-    }
-    .back-arrow {
-      position:absolute; top:0.5rem; left:0.5rem;
-      background:none; border:none; color:#fff;
-      font-size:1.5rem; cursor:pointer; opacity:0.7;
-    }
+    html, body { width:100%; height:100vh; background:#000; color:#fff; font-family:'Outfit',sans-serif; overflow-x:hidden; }
+    @media (min-width:1024px) { html, body { overflow-y:hidden; } }
+    body { display:flex; flex-direction:column; align-items:center; padding:0.5rem 0; position: relative; }
+    .back-arrow { position:absolute; top:0.5rem; left:0.5rem; background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer; opacity:0.7; }
     .back-arrow:hover { opacity:1; }
-    header {
-      width:100%; display:flex; align-items:center;
-      padding:0 1rem; margin-bottom:0.5rem;
-    }
+    header { width:100%; display:flex; align-items:center; padding:0 1rem; margin-bottom:0.5rem; }
     .logo { display:flex; align-items:center; gap:0.5rem; }
     .logo img { width:32px; height:32px; }
     .logo span { font-size:1.4rem; font-weight:700; letter-spacing:2px; }
-    h1 {
-      font-size:1.6rem; text-align:center;
-      width:100%; margin:0.5rem 0;
-    }
-    h2 {
-      font-size:0.95rem; text-align:center;
-      color:#ccc; max-width:500px;
-      margin-bottom:1rem;
-    }
-    form {
-      background:#111; border-radius:1rem;
-      padding:1rem; width:100%; max-width:800px;
-      box-shadow:0 4px 15px rgba(255,255,255,0.1);
-      display:flex; flex-direction:column; gap:1rem;
-    }
-    .subscriptions {
-      display:grid; grid-template-columns:1fr;
-      gap:0.75rem;
-    }
-    @media (min-width:768px) {
-      .subscriptions { grid-template-columns:repeat(2,1fr); }
-    }
-    .card {
-      background:#222; border-radius:1rem;
-      padding:0.75rem; box-shadow:0 4px 15px rgba(255,255,255,0.1);
-      cursor:pointer; transition:transform 0.3s,border 0.3s;
-      border:2px solid transparent; position: relative;
-    }
+    h1 { font-size:1.6rem; text-align:center; width:100%; margin:0.5rem 0; }
+    h2 { font-size:0.95rem; text-align:center; color:#ccc; max-width:500px; margin-bottom:1rem; }
+    form { background:#111; border-radius:1rem; padding:1rem; width:100%; max-width:800px; box-shadow:0 4px 15px rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:1rem; }
+    .subscriptions { display:grid; grid-template-columns:1fr; gap:0.75rem; }
+    @media (min-width:768px) { .subscriptions { grid-template-columns:repeat(2,1fr); } }
+    .card { background:#222; border-radius:1rem; padding:0.75rem; box-shadow:0 4px 15px rgba(255,255,255,0.1); cursor:pointer; transition:transform 0.3s,border 0.3s; border:2px solid transparent; position: relative; }
     .card:hover { transform:translateY(-3px); }
     .card input { display:none; }
     .card.selected { border-color:#fff; }
@@ -71,72 +31,55 @@
     .card[data-plan="3"]  { border-left:4px solid #8d99ae; }
     .card h3 { font-size:1.1rem; margin-bottom:0.4rem; }
     .card p  { font-size:0.85rem; opacity:0.8; }
-    form label { font-weight:600; display:block; margin-top:0.5rem; }
-    form input[type="text"],
-    form input[type="email"],
-    form input[type="password"] {
-      width:100%; padding:0.6rem; border:none;
-      border-radius:0.5rem; background:#222;
-      color:#fff; font-size:0.95rem;
+    label { font-weight:600; display:block; margin-top:0.5rem; }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width:100%; padding:0.6rem; border:none; border-radius:0.5rem; background:#222; color:#fff; font-size:0.95rem;
     }
-    form input::placeholder { color:#777; }
-    .checkbox-container {
-      display:flex; align-items:center; gap:8px;
-      margin-top:16px;
+    input::placeholder { color:#777; }
+    .checkbox-container { display:flex; align-items:center; gap:8px; margin-top:16px; }
+    .checkbox-container input[type="checkbox"] { accent-color:#fff; transform:scale(1.2); margin-top:2px; }
+    button[type="submit"] {
+      margin-top:0.5rem; padding:0.8rem; font-size:1rem; background:#fff; color:#000; border:none; border-radius:0.5rem;
+      font-weight:700; cursor:pointer; transition:transform 0.2s;
     }
-    .checkbox-container input[type="checkbox"] {
-      accent-color:#fff; transform:scale(1.2); margin-top:2px;
-    }
-    form button[type="submit"] {
-      margin-top:0.5rem; padding:0.8rem;
-      font-size:1rem; background:#fff; color:#000;
-      border:none; border-radius:0.5rem;
-      font-weight:700; cursor:pointer;
-      transition:transform 0.2s;
-    }
-    form button[type="submit"]:hover { transform:scale(1.02); }
-    .footer-msg {
-      font-size:0.8rem; text-align:center;
-      color:#aaa; margin-top:0.5rem;
-    }
+    button[type="submit"]:hover { transform:scale(1.02); }
+    .footer-msg { font-size:0.8rem; text-align:center; color:#aaa; margin-top:0.5rem; }
   </style>
 </head>
 <body>
   <button class="back-arrow" onclick="location.href='index.html'">←</button>
+
   <header>
     <div class="logo">
       <img src="assets/pigeon.png" alt="Logo Pigeon">
       <span>PAIE POUR RIEN</span>
     </div>
   </header>
+
   <h1>Bienvenue dans les plus inutiles des abonnements</h1>
   <h2>Choisis ton abonnement inutile et entre dans l’histoire… enfin, quelle histoire ?… même ça, il n’y en a pas.</h2>
 
- <form id="signupForm"
-      action="https://script.google.com/macros/s/AKfycbwsUQOQ1m360PdYKJ06nZd_JJJ87-lh2ms0hW8swlL3vkJ9VXePq04MhXHXYC6jTDnhPA/exec?action=checkout"
-      method="post"
-      target="_top">
-  <input type="hidden" name="action" value="checkout">
-
+  <!-- Formulaire (pas d'action : on gère Stripe côté client) -->
+  <form id="signupForm">
     <div class="subscriptions">
       <label class="card" data-plan="20">
         <input type="radio" name="Type abonnement" value="20" required>
-        <h3> Salle de Sport – 20€/mois</h3>
+        <h3>Salle de Sport – 20€/mois</h3>
         <p>Tu ne viendras jamais. En fait, la salle n’existe même pas. C’est ça la motivation.</p>
       </label>
       <label class="card" data-plan="14">
         <input type="radio" name="Type abonnement" value="14">
-        <h3> Appli pour apprendre une langue – 14€/mois</h3>
+        <h3>Appli pour apprendre une langue – 14€/mois</h3>
         <p>T’as cliqué une fois, t’as dit “bonjour” en espagnol. Depuis, plus rien.</p>
       </label>
       <label class="card" data-plan="39">
         <input type="radio" name="Type abonnement" value="39">
-        <h3> Abonnement Mystère – 39€/mois</h3>
+        <h3>Abonnement Mystère – 39€/mois</h3>
         <p>Même nous on sait pas ce que c’est. Et c’est terrifiant. Mais tu paies, et ça c’est beau.</p>
       </label>
       <label class="card" data-plan="3">
         <input type="radio" name="Type abonnement" value="3">
-        <h3> Pour rien – 3€/mois</h3>
+        <h3>Pour rien – 3€/mois</h3>
         <p>C’est exactement ce que tu crois. Et c’est là que c’est beau.</p>
       </label>
     </div>
@@ -150,10 +93,7 @@
     <label for="password">Mot de passe</label>
     <input type="password" id="password" name="Mot de passe" placeholder="…et pas trop simple" required>
 
-    <input type="hidden" name="Date inscription" id="date_inscription">
-    <input type="hidden" name="Montant abonnement" value="0">
-    <input type="hidden" name="Total dons"          value="0">
-    <input type="hidden" name="Total cumulé"        value="0">
+    <input type="hidden" id="date_inscription" name="Date inscription">
 
     <div class="checkbox-container">
       <input type="checkbox" id="assume" required>
@@ -162,25 +102,29 @@
         de cette décision, et que je suis OK avec ça. Même un peu fier·e, en fait.
       </label>
     </div>
-<div class="checkbox-container">
-  <input type="checkbox" id="cgu" name="cgu" required>
-  <label for="cgu">
-    J’ai lu et j’accepte les <a href="cgu.html" target="_blank" style="color:#fff;text-decoration:underline">CGU</a>.
-  </label>
-</div>
 
-    <button type="submit">Je paie pour rien, et je suis en paix avec ça.</button>
+    <div class="checkbox-container">
+      <input type="checkbox" id="cgu" name="cgu" required>
+      <label for="cgu">
+        J’ai lu et j’accepte les <a href="cgu.html" target="_blank" style="color:#fff;text-decoration:underline">CGU</a>.
+      </label>
+    </div>
+
+    <button type="submit" id="submitBtn">Je paie pour rien, et je suis en paix avec ça.</button>
+
     <div class="footer-msg">
       Ce site est une expérience sociale. Ou un gag qui va trop loin.
       Personne ne sait vraiment. Mais si tu es là, c’est que tu as compris.
     </div>
   </form>
 
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
   <script>
-    // Remplissage de la date auto
+    // 0) Date auto
     document.getElementById('date_inscription').value = new Date().toISOString();
 
-    // Visuel de sélection
+    // 1) Visuel de sélection des cartes
     document.querySelectorAll('.card').forEach(card => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
@@ -189,9 +133,77 @@
       });
     });
 
+    // 2) Stripe publishable key (REMPLACE par ta vraie clé publique pk_test_... ou pk_live_...)
+    const stripe = Stripe('pk_live_51RpyHmDLBclhv9gZ9xSzAAUNx5xUH1TtxCQtnY0vCRfuvJyoqcb8PHcACnGtYMgVi2TaUHjk3tbNd09r2rpMTbkV00AwAHELzU');
+
+    // 3) Price IDs (doivent correspondre à ceux utilisés côté webhook)
+    const PRICE_BY_PLAN = {
+      '3'  : 'price_1RpyxFDLBclhv9gZhXupwy29',
+      '14' : 'price_1RwNGnDLBclhv9gZTwrebBbM',
+      '20' : 'price_1RwNEsDLBclhv9gZ63heEhxL',
+      '39' : 'price_1RwNHkDLBclhv9gZbuqOo6in'
+    };
+
+    // 4) URLs de retour
+    const successUrl = 'https://baassttt.github.io/PaiePourRien/connexion.html?sub=ok';
+    const cancelUrl  = 'https://baassttt.github.io/PaiePourRien/inscription.html?canceled=1';
+
+    // 5) Soumission → redirection Checkout top-level (évite l’iFrame Apps Script)
+    const form = document.getElementById('signupForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+
+      try {
+        const planEl = form.querySelector('input[name="Type abonnement"]:checked');
+        if (!planEl) { alert('Sélectionne un abonnement'); submitBtn.disabled = false; return; }
+        const plan = planEl.value;
+        const priceId = PRICE_BY_PLAN[plan];
+        if (!priceId) { alert('Plan invalide'); submitBtn.disabled = false; return; }
+
+        // Vérifs de base
+        const pseudo = document.getElementById('pseudo').value.trim();
+        const email  = document.getElementById('email').value.trim().toLowerCase();
+        const pass   = document.getElementById('password').value;
+        const cguOk  = document.getElementById('cgu').checked;
+        if (!pseudo || !email || !pass || !cguOk) { alert('Complète tous les champs requis.'); submitBtn.disabled = false; return; }
+
+        // Données encodées pour le webhook (client_reference_id)
+        const payload = {
+          pseudo,
+          email,
+          password: pass,
+          date_inscription: document.getElementById('date_inscription').value,
+          type_abonnement: plan
+        };
+        const clientRef = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+
+        const { error } = await stripe.redirectToCheckout({
+          lineItems: [{ price: priceId, quantity: 1 }],
+          mode: 'subscription',
+          clientReferenceId: clientRef,
+          customerEmail: email,
+          successUrl,
+          cancelUrl
+        });
+
+        if (error) {
+          console.error(error);
+          alert(error.message || 'Erreur Stripe');
+          submitBtn.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erreur inattendue.');
+        submitBtn.disabled = false;
+      }
+    });
   </script>
 </body>
 </html>
+
 
 
 
